@@ -72,7 +72,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ data }) => {
   const currencySymbol = data.currency || '$';
 
   // Check if a field has a value
-  const hasValue = (value) => {
+  const hasValue = (value: any): boolean => {
     return value !== undefined && value !== null && value !== '';
   };
 

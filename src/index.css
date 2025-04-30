@@ -75,7 +75,13 @@ html, body {
 }
 
 #root {
-  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
 }
 
 /* Typography */
@@ -439,4 +445,18 @@ tbody tr {
     margin: 0;
     padding: 0;
   }
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.footer-custom {
+  background-color: #f3f4f6; /* Tailwind's gray-100 */
+  padding-top: var(--spacing-6);
+  padding-bottom: 3rem;
+  margin-top: auto;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
 } 

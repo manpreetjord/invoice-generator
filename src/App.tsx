@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaFileInvoice, FaDownload, FaSave, FaEye, FaPlusCircle, FaTrash, FaInfoCircle, FaDatabase, FaDollarSign, FaEuroSign, FaPoundSign, FaYenSign } from 'react-icons/fa';
+import { FaDownload, FaEye, FaPlusCircle, FaTrash, FaInfoCircle, FaDatabase, FaDollarSign, FaEuroSign, FaPoundSign, FaYenSign } from 'react-icons/fa';
 import InvoicePreview from './components/InvoicePreview';
 import html2pdf from 'html2pdf.js';
 
@@ -42,7 +42,8 @@ interface InvoiceData {
     cryptoAddress: string;
   };
   notes: string;
-  bankingType: string; // 'international' or 'indian'
+  bankingType: 'international' | 'indian';
+  [key: string]: any;
 }
 
 // Sample data for the invoice
@@ -55,7 +56,7 @@ const sampleData: InvoiceData = {
     name: 'Global Tech Solutions',
     address: 'A-21, Sector 62, Noida, UP 201301, India',
     email: 'accounts@globaltechsolutions.com',
-    phone: '+91 98765 43210',
+    phone: '9876543210',
     countryCode: '+91'
   },
   recipient: {
@@ -114,7 +115,7 @@ const currencySymbols = [
 
 // Add country codes array
 const countryCodes = [
-  { code: '+1', country: 'USA' },
+  { code: '+1', country: 'USA/Canada' },
   { code: '+44', country: 'UK' },
   { code: '+91', country: 'India' },
   { code: '+33', country: 'France' },
@@ -123,8 +124,89 @@ const countryCodes = [
   { code: '+86', country: 'China' },
   { code: '+61', country: 'Australia' },
   { code: '+55', country: 'Brazil' },
+  { code: '+7', country: 'Russia' },
+  { code: '+34', country: 'Spain' },
+  { code: '+39', country: 'Italy' },
+  { code: '+31', country: 'Netherlands' },
+  { code: '+48', country: 'Poland' },
+  { code: '+46', country: 'Sweden' },
+  { code: '+47', country: 'Norway' },
+  { code: '+45', country: 'Denmark' },
+  { code: '+358', country: 'Finland' },
+  { code: '+420', country: 'Czech Republic' },
+  { code: '+36', country: 'Hungary' },
+  { code: '+43', country: 'Austria' },
+  { code: '+32', country: 'Belgium' },
+  { code: '+41', country: 'Switzerland' },
+  { code: '+351', country: 'Portugal' },
+  { code: '+30', country: 'Greece' },
+  { code: '+353', country: 'Ireland' },
+  { code: '+352', country: 'Luxembourg' },
+  { code: '+40', country: 'Romania' },
+  { code: '+421', country: 'Slovakia' },
+  { code: '+386', country: 'Slovenia' },
+  { code: '+385', country: 'Croatia' },
+  { code: '+359', country: 'Bulgaria' },
+  { code: '+370', country: 'Lithuania' },
+  { code: '+371', country: 'Latvia' },
+  { code: '+372', country: 'Estonia' },
+  { code: '+357', country: 'Cyprus' },
+  { code: '+356', country: 'Malta' },
+  { code: '+354', country: 'Iceland' },
+  { code: '+65', country: 'Singapore' },
+  { code: '+82', country: 'South Korea' },
+  { code: '+852', country: 'Hong Kong' },
+  { code: '+886', country: 'Taiwan' },
+  { code: '+84', country: 'Vietnam' },
+  { code: '+66', country: 'Thailand' },
+  { code: '+63', country: 'Philippines' },
+  { code: '+62', country: 'Indonesia' },
+  { code: '+60', country: 'Malaysia' },
   { code: '+971', country: 'UAE' },
-];
+  { code: '+966', country: 'Saudi Arabia' },
+  { code: '+974', country: 'Qatar' },
+  { code: '+973', country: 'Bahrain' },
+  { code: '+965', country: 'Kuwait' },
+  { code: '+968', country: 'Oman' },
+  { code: '+961', country: 'Lebanon' },
+  { code: '+962', country: 'Jordan' },
+  { code: '+20', country: 'Egypt' },
+  { code: '+27', country: 'South Africa' },
+  { code: '+234', country: 'Nigeria' },
+  { code: '+254', country: 'Kenya' },
+  { code: '+251', country: 'Ethiopia' },
+  { code: '+212', country: 'Morocco' },
+  { code: '+216', country: 'Tunisia' },
+  { code: '+972', country: 'Israel' },
+  { code: '+90', country: 'Turkey' },
+  { code: '+98', country: 'Iran' },
+  { code: '+92', country: 'Pakistan' },
+  { code: '+880', country: 'Bangladesh' },
+  { code: '+94', country: 'Sri Lanka' },
+  { code: '+95', country: 'Myanmar' },
+  { code: '+977', country: 'Nepal' },
+  { code: '+93', country: 'Afghanistan' },
+  { code: '+64', country: 'New Zealand' },
+  { code: '+52', country: 'Mexico' },
+  { code: '+54', country: 'Argentina' },
+  { code: '+56', country: 'Chile' },
+  { code: '+57', country: 'Colombia' },
+  { code: '+51', country: 'Peru' },
+  { code: '+58', country: 'Venezuela' },
+  { code: '+593', country: 'Ecuador' },
+  { code: '+595', country: 'Paraguay' },
+  { code: '+598', country: 'Uruguay' },
+  { code: '+591', country: 'Bolivia' },
+  { code: '+506', country: 'Costa Rica' },
+  { code: '+503', country: 'El Salvador' },
+  { code: '+502', country: 'Guatemala' },
+  { code: '+504', country: 'Honduras' },
+  { code: '+505', country: 'Nicaragua' },
+  { code: '+507', country: 'Panama' },
+  { code: '+1809', country: 'Dominican Republic' },
+  { code: '+1876', country: 'Jamaica' },
+  { code: '+53', country: 'Cuba' }
+].sort((a, b) => a.country.localeCompare(b.country)); // Sort alphabetically by country name
 
 interface InputWithTooltipProps {
   id: string;
@@ -245,6 +327,7 @@ function App() {
   });
 
   const [showPreview, setShowPreview] = useState(false);
+  const [touchedFields, setTouchedFields] = useState<{ [key: string]: boolean }>({});
   const invoicePreviewRef = useRef(null);
 
   // Load saved data from localStorage on component mount
@@ -266,6 +349,11 @@ function App() {
       [section]: typeof prev[section] === 'object'
         ? { ...prev[section], [field]: value }
         : value
+    }));
+    // Mark field as touched when user interacts with it
+    setTouchedFields(prev => ({
+      ...prev,
+      [`${section}.${field}`]: true
     }));
   };
 
@@ -299,8 +387,8 @@ function App() {
   };
 
   const handleDownloadPDF = () => {
-    if (invoicePreviewRef.current) {
-      const element = invoicePreviewRef.current;
+    const previewElement = document.getElementById('invoice-preview');
+    if (previewElement) {
       const opt = {
         margin: 1,
         filename: `invoice-${invoiceData.invoiceNumber || 'new'}.pdf`,
@@ -314,16 +402,13 @@ function App() {
         setShowPreview(true);
         // Wait for the component to render
         setTimeout(() => {
-          const previewElement = document.getElementById('invoice-preview');
-          if (previewElement) {
-            html2pdf().set(opt).from(previewElement).save();
+          const element = document.getElementById('invoice-preview');
+          if (element) {
+            html2pdf().set(opt).from(element).save();
           }
         }, 500);
       } else {
-        const previewElement = document.getElementById('invoice-preview');
-        if (previewElement) {
-          html2pdf().set(opt).from(previewElement).save();
-        }
+        html2pdf().set(opt).from(previewElement).save();
       }
     }
   };
@@ -334,7 +419,7 @@ function App() {
 
   // Validation functions
   const validatePhone = (value: string) => {
-    if (!value) return '';
+    if (!value) return 'Phone number is required';
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(value)) {
       return 'Please enter a valid 10-digit phone number';
@@ -378,27 +463,48 @@ function App() {
       { value: invoiceData.sender.email, validator: validateEmail },
       { value: invoiceData.sender.phone, validator: validatePhone },
       { value: invoiceData.recipient.companyName, validator: validateRequired },
-      { value: invoiceData.recipient.address, validator: validateRequired },
+      { value: invoiceData.recipient.address, validator: validateRequired }
     ];
 
-    return requiredFields.every(({ value, validator }) => !validator(value));
+    return requiredFields.every(({ value, validator }) => validator(value) === '');
   };
 
   // Update the preview button click handler
   const handlePreviewClick = () => {
+    // Mark all fields as touched when trying to preview
+    const allFields = [
+      'invoiceNumber',
+      'date',
+      'dueDate',
+      'sender.name',
+      'sender.address',
+      'sender.email',
+      'sender.phone',
+      'recipient.companyName',
+      'recipient.address'
+    ];
+    setTouchedFields(prev => ({
+      ...prev,
+      ...allFields.reduce((acc, field) => ({ ...acc, [field]: true }), {})
+    }));
+
     if (isFormValid()) {
       setShowPreview(!showPreview);
     } else {
       // Show validation errors
       const validationErrors = document.querySelectorAll('.text-danger');
-      validationErrors.forEach(error => {
-        error.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
+      if (validationErrors.length > 0) {
+        validationErrors[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   };
 
-  // Indian bank details component
-  const IndianBankDetails = ({ payment, onChange }) => {
+  interface BankDetailsProps {
+    payment: InvoiceData['payment'];
+    onChange: (section: string, field: string, value: string) => void;
+  }
+
+  const IndianBankDetails: React.FC<BankDetailsProps> = ({ payment, onChange }) => {
     return (
       <>
         <InputWithTooltip 
@@ -445,8 +551,7 @@ function App() {
     );
   };
 
-  // International bank details component
-  const InternationalBankDetails = ({ payment, onChange }) => {
+  const InternationalBankDetails: React.FC<BankDetailsProps> = ({ payment, onChange }) => {
     return (
       <>
         <InputWithTooltip 
@@ -490,7 +595,7 @@ function App() {
           <div className="flex justify-between">
             <div className="flex items-center">
               <img 
-                src="/logo.svg" 
+                src="./favicon.svg" 
                 alt="Invoice Generator Logo" 
                 className="h-8 w-8 mr-2"
               />
@@ -507,13 +612,15 @@ function App() {
               <button 
                 onClick={handlePreviewClick}
                 className="btn btn-primary"
+                disabled={!isFormValid()}
               >
                 <FaEye className="mr-2" />
-                {showPreview ? 'Hide Preview' : 'Show Preview'}
+                {showPreview ? 'Edit Invoice' : 'Save & Preview'}
               </button>
               <button 
                 onClick={handleDownloadPDF}
                 className="btn btn-primary"
+                disabled={!showPreview}
               >
                 <FaDownload className="mr-2" />
                 Download PDF
@@ -638,32 +745,42 @@ function App() {
                     handleInputChange('sender', 'phone', value);
                   }}
                   placeholder="1234567890"
-                  tooltipText="Your contact phone number"
+                  tooltipText="Your contact phone number (10 digits)"
                   validation={validatePhone}
+                  required={true}
                   customInput={
-                    <div className="country-code-selector">
-                      <select
-                        value={invoiceData.sender.countryCode}
-                        onChange={(e) => handleInputChange('sender', 'countryCode', e.target.value)}
-                        className="input-field"
-                      >
-                        {countryCodes.map(({ code, country }) => (
-                          <option key={code} value={code}>
-                            {code} ({country})
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="text"
-                        value={invoiceData.sender.phone}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '').slice(0, 10);
-                          handleInputChange('sender', 'phone', value);
-                        }}
-                        placeholder="1234567890"
-                        className="input-field"
-                      />
-                    </div>
+                    <>
+                      <div className="country-code-selector">
+                        <select
+                          value={invoiceData.sender.countryCode}
+                          onChange={(e) => handleInputChange('sender', 'countryCode', e.target.value)}
+                          className="input-field"
+                          style={{ minWidth: '180px' }}
+                        >
+                          {countryCodes.map(({ code, country }) => (
+                            <option key={code} value={code}>
+                              {code} ({country})
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          value={invoiceData.sender.phone}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                            handleInputChange('sender', 'phone', value);
+                          }}
+                          onBlur={() => setTouchedFields(prev => ({ ...prev, 'sender.phone': true }))}
+                          placeholder="1234567890"
+                          className={`input-field ${touchedFields['sender.phone'] && validatePhone(invoiceData.sender.phone) ? 'border-red-500' : ''}`}
+                        />
+                      </div>
+                      {touchedFields['sender.phone'] && validatePhone(invoiceData.sender.phone) && (
+                        <p className="text-danger text-sm mt-1">
+                          {validatePhone(invoiceData.sender.phone)}
+                        </p>
+                      )}
+                    </>
                   }
                 />
               </div>
@@ -880,15 +997,17 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="text-center py-4 text-gray-500 text-sm">
-        Built with ❤️ by JordInc
+      <footer className="footer-custom text-center py-6 text-gray-500 text-sm mt-auto">
+        <div className="container">
+          Built with ❤️ by Jord Inc.
+        </div>
       </footer>
     </div>
   );
 }
 
 // Helper function to get currency icon
-function getCurrencyIcon(symbol) {
+function getCurrencyIcon(symbol: string): React.ReactNode {
   switch (symbol) {
     case '$':
       return <FaDollarSign />;
