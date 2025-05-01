@@ -339,9 +339,9 @@ function App() {
   // }, []);
 
   // Save data to localStorage whenever it changes
-  // useEffect(() => {
-  //   localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
-  // }, [invoiceData]);
+  useEffect(() => {
+    localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
+  }, [invoiceData]);
 
   const handleInputChange = (section: string, field: string, value: string | number) => {
     setInvoiceData(prev => ({
