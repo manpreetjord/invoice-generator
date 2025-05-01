@@ -331,17 +331,17 @@ function App() {
   const invoicePreviewRef = useRef(null);
 
   // Load saved data from localStorage on component mount
-  useEffect(() => {
-    const savedData = localStorage.getItem('invoiceData');
-    if (savedData) {
-      setInvoiceData(JSON.parse(savedData));
-    }
-  }, []);
+  // useEffect(() => {
+  //   const savedData = localStorage.getItem('invoiceData');
+  //   if (savedData) {
+  //     setInvoiceData(JSON.parse(savedData));
+  //   }
+  // }, []);
 
   // Save data to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
-  }, [invoiceData]);
+  // useEffect(() => {
+  //   localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
+  // }, [invoiceData]);
 
   const handleInputChange = (section: string, field: string, value: string | number) => {
     setInvoiceData(prev => ({
@@ -489,6 +489,8 @@ function App() {
     }));
 
     if (isFormValid()) {
+      // ✅ Save data to localStorage as a draft
+    localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
       setShowPreview(!showPreview);
     } else {
       // Show validation errors
